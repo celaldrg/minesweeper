@@ -10,7 +10,7 @@ export const STRINGS = Object.freeze({
   en: Object.freeze({
     title: 'Minesweeper',
     newGame: 'New game',
-    switchLang: 'Switch to Turkish',
+    switchLang: 'TR – switch to Turkish',
     hudLabel: 'Game status',
     mines: 'Mines',
     time: 'Time',
@@ -51,7 +51,7 @@ export const STRINGS = Object.freeze({
   tr: Object.freeze({
     title: 'Mayın Tarlası',
     newGame: 'Yeni oyun',
-    switchLang: 'İngilizceye geç',
+    switchLang: 'EN – İngilizceye geç',
     hudLabel: 'Oyun durumu',
     mines: 'Mayın',
     time: 'Süre',
