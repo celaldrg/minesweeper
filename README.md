@@ -30,7 +30,7 @@ Open every cell that has no mine. A number shows how many mines touch that cell.
 | Move between cells | Arrow keys | – |
 | New game | *New game* button or the round status button | same |
 
-On narrow screens the Expert board scrolls inside its own frame. The page itself never scrolls sideways.
+On narrow screens the bigger boards (Expert, and Intermediate on phones) scroll inside their own frame. A faded edge with an arrow shows which way the board continues. The page itself never scrolls sideways.
 
 ## Run locally
 
@@ -115,7 +115,7 @@ Mayın olmayan bütün hücreleri aç. Bir hücredeki sayı, ona değen mayınla
 | Hücreler arasında gezin | Ok tuşları | – |
 | Yeni oyun | *Yeni oyun* düğmesi ya da yuvarlak durum düğmesi | aynı |
 
-Dar ekranlarda Uzman tahtası kendi çerçevesi içinde kayar. Sayfanın kendisi hiçbir zaman yana kaymaz.
+Dar ekranlarda büyük tahtalar (Uzman, telefonda Orta da) kendi çerçevelerinin içinde kayar. Kenardaki gölge ve ok, tahtanın hangi yönde devam ettiğini gösterir. Sayfanın kendisi hiçbir zaman yana kaymaz.
 
 ### Yerelde çalıştırma
 

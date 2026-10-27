@@ -7,9 +7,11 @@
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const GAP_PX = 2;
 const MAX_CELL_PX = 44;
-const MIN_CELL_FINE_PX = 18;
+const MIN_CELL_FINE_PX = 17;
 const MIN_CELL_TOUCH_PX = 30;
 const BOTTOM_GAP_PX = 24;
+/** Scroll distance below which the frame counts as being at an edge (subpixel slack). */
+const EDGE_SLACK_PX = 1;
 const WIDE_LAYOUT_QUERY = '(min-width: 900px)';
 const TOUCH_QUERY = '(pointer: coarse)';
 const STAGGER_MS = 6;
@@ -52,7 +54,8 @@ function createIcon(symbolId) {
 /**
  * Wires the board view to its elements.
  * @param {{board: HTMLElement, card: HTMLElement, area: HTMLElement, footer: HTMLElement}} elements
- *   board: the grid; card: its scrollable frame; area: the layout slot; footer: page footer.
+ *   board: the grid; card: its scrollable frame; area: the layout slot, which draws the
+ *   edge fades over the frame; footer: page footer.
  */
 export function createBoardView({ board, card, area, footer }) {
   /** @type {HTMLButtonElement[]} */
@@ -67,6 +70,7 @@ export function createBoardView({ board, card, area, footer }) {
     const index = indexOf(event.target);
     if (index >= 0) setFocus(index, false);
   });
+  card.addEventListener('scroll', updateScrollHints);
 
   /**
    * Replaces all cells with a fresh, hidden grid.
@@ -132,10 +136,7 @@ export function createBoardView({ board, card, area, footer }) {
     state.cells.forEach((cell, i) => labelCell(cells[i], cell, t));
   }
 
-  /**
-   * Sizes cells to the space available and marks the frame scrollable when
-   * the board is wider than the screen (Expert on phones).
-   */
+  /** Sizes cells to the space available, then refreshes the scroll hints. */
   function fit() {
     if (cols === 0) return;
     const frame = getComputedStyle(card);
@@ -150,7 +151,20 @@ export function createBoardView({ board, card, area, footer }) {
     const min = window.matchMedia(TOUCH_QUERY).matches ? MIN_CELL_TOUCH_PX : MIN_CELL_FINE_PX;
     const cell = Math.max(min, Math.min(MAX_CELL_PX, Math.floor(size)));
     board.style.setProperty('--cell', `${cell}px`);
-    card.classList.toggle('is-scrollable', card.scrollWidth > card.clientWidth + 1);
+    updateScrollHints();
+  }
+
+  /**
+   * Marks the frame scrollable when the board is wider than the screen
+   * (Intermediate and Expert on phones) and shows an edge fade on each side
+   * that still hides part of the board, since phones only show overlay scrollbars.
+   */
+  function updateScrollHints() {
+    const max = card.scrollWidth - card.clientWidth;
+    const scrollable = max > EDGE_SLACK_PX;
+    card.classList.toggle('is-scrollable', scrollable);
+    area.classList.toggle('has-more-start', scrollable && card.scrollLeft > EDGE_SLACK_PX);
+    area.classList.toggle('has-more-end', scrollable && card.scrollLeft < max - EDGE_SLACK_PX);
   }
 
   /**

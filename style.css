@@ -13,6 +13,8 @@
   --cell-hidden-top: #3d4d68;
   --cell-hidden-bottom: #2f3d56;
   --cell-open: #111a2c;
+  --frame: #172135;
+  --fade: 36px;
   --radius: 12px;
   --shadow: 0 12px 32px -14px rgba(2, 6, 23, 0.8), 0 2px 6px rgba(2, 6, 23, 0.35);
   --dur: 180ms;
@@ -431,10 +433,51 @@ h1 {
 /* ---------- Board ---------- */
 
 .board-area {
+  position: relative;
+  align-self: start;
   min-width: 0;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+}
+
+/*
+ * Edge fades with a chevron over a board wider than its frame (the frame is
+ * then exactly as wide as this area). Phones only show overlay scrollbars, so
+ * these tell the player that the board scrolls, and in which direction.
+ */
+.board-area::before,
+.board-area::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  z-index: 1;
+  width: var(--fade);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.board-area::before {
+  left: 1px;
+  border-radius: calc(var(--radius) - 1px) 0 0 calc(var(--radius) - 1px);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15 5l-7 7 7 7' fill='none' stroke='%2393c5fd' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") left 2px center / 18px 18px no-repeat,
+    linear-gradient(to right, var(--frame) 25%, rgba(23, 33, 53, 0));
+}
+
+.board-area::after {
+  right: 1px;
+  border-radius: 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 5l7 7-7 7' fill='none' stroke='%2393c5fd' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 2px center / 18px 18px no-repeat,
+    linear-gradient(to left, var(--frame) 25%, rgba(23, 33, 53, 0));
+}
+
+.board-area.has-more-start::before,
+.board-area.has-more-end::after {
+  opacity: 1;
 }
 
 .board-card {
@@ -443,7 +486,7 @@ h1 {
   padding: 8px;
   border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: var(--radius);
-  background: #172135;
+  background: var(--frame);
   box-shadow: var(--shadow);
   overscroll-behavior: contain;
   touch-action: none;
@@ -455,6 +498,8 @@ h1 {
 
 .board-card.is-scrollable {
   touch-action: pan-x pan-y;
+  /* Keyboard focus scrolls cells clear of the edge fades. */
+  scroll-padding-inline: var(--fade);
 }
 
 .board-card[data-status="won"] {
@@ -497,7 +542,7 @@ h1 {
   cursor: pointer;
   transition:
     filter var(--dur) var(--ease),
-    transform 120ms var(--ease);
+    transform 150ms var(--ease);
 }
 
 .cell .icon {
@@ -508,7 +553,7 @@ h1 {
 
 .cell:focus-visible {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   outline: 2px solid #93c5fd;
   outline-offset: 1px;
 }
@@ -544,7 +589,7 @@ h1 {
 .cell[data-kind="exploded"] {
   background: radial-gradient(circle at 50% 45%, #fb7185, #b91c1c 80%);
   color: #1c0a0d;
-  animation: boom 420ms var(--ease);
+  animation: boom 250ms var(--ease);
 }
 
 .cell[data-n="1"] { color: #60a5fa; }

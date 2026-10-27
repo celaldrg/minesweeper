@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createDemoGame } from '../src/demo.js';
+import { formatBest } from '../src/format.js';
 import { getState } from '../src/game.js';
 import { recordBestTime, sanitizeBestTimes } from '../src/records.js';
 import { createRng, randomInt } from '../src/rng.js';
@@ -48,6 +49,16 @@ test('records: a faster time becomes the best, a slower one does not', () => {
   assert.deepEqual(first.best, { beginner: 42_000 }, 'input is not mutated');
   const other = recordBestTime(faster.best, 'expert', 300_000);
   assert.deepEqual(other.best, { beginner: 30_000, expert: 300_000 });
+});
+
+test('records: times are stored as whole milliseconds, rounded down like the shown time', () => {
+  const { best } = recordBestTime({}, 'beginner', 2040.1000000238419);
+  assert.deepEqual(best, { beginner: 2040 });
+  assert.equal(recordBestTime(best, 'beginner', 2040.9).isNewBest, false, 'the same whole ms is no new best');
+  assert.deepEqual(recordBestTime(best, 'beginner', 2039.9).best, { beginner: 2039 });
+  // Rounding up would store 2100 and list 0:02.1 while the win message says 0:02.0.
+  const shown = formatBest(2099.6);
+  assert.equal(formatBest(recordBestTime({}, 'expert', 2099.6).best.expert), shown);
 });
 
 test('records: custom boards and invalid times are never ranked', () => {

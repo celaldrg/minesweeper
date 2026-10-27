@@ -7,12 +7,16 @@ const SEEDS = 500;
 
 for (const [difficulty, preset] of Object.entries(DIFFICULTIES)) {
   test(`first click is never a mine: ${difficulty}, ${SEEDS} seeds`, () => {
+    const total = preset.cols * preset.rows;
+    const clicked = new Set();
     for (let seed = 1; seed <= SEEDS; seed += 1) {
       const game = createGame({ difficulty, seed });
-      // Walk the click over corners, edges and the interior.
-      const x = seed % preset.cols;
-      const y = (seed * 7 + 3) % preset.rows;
-      const index = y * preset.cols + x;
+      // Step the click through the cells in reading order, one cell per seed. 500 seeds
+      // reach every cell of every preset (Expert has 480), so corners and edges are included.
+      const index = seed % total;
+      const x = index % preset.cols;
+      const y = Math.floor(index / preset.cols);
+      clicked.add(index);
       const { opened, status } = reveal(game, x, y);
 
       assert.notEqual(status, 'lost', `seed ${seed} lost on the first click`);
@@ -24,6 +28,7 @@ for (const [difficulty, preset] of Object.entries(DIFFICULTIES)) {
       assert.ok(opened.length > 1);
       assert.equal(game.mines.filter(Boolean).length, preset.mines);
     }
+    assert.equal(clicked.size, total, 'every cell, the four corners included, was a first click');
   });
 }
 

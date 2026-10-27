@@ -25,15 +25,18 @@ export function sanitizeBestTimes(value) {
 
 /**
  * Records a winning time and reports whether it beat the previous best.
+ * Times are kept as whole milliseconds, rounded down like the time shown
+ * after a win, so the stored record and the win message always agree.
  * Custom boards are never ranked.
  * @param {BestTimes} best Current best times (not mutated).
  * @param {string} difficulty Difficulty id of the won game.
- * @param {number} ms Winning time in milliseconds.
+ * @param {number} ms Winning time in milliseconds (may be fractional).
  * @returns {{best: BestTimes, isNewBest: boolean}}
  */
 export function recordBestTime(best, difficulty, ms) {
-  const ranked = Object.hasOwn(DIFFICULTIES, difficulty) && Number.isFinite(ms) && ms > 0;
+  const time = Math.floor(ms);
+  const ranked = Object.hasOwn(DIFFICULTIES, difficulty) && Number.isFinite(time) && time > 0;
   const previous = Object.hasOwn(best, difficulty) ? best[difficulty] : undefined;
-  if (!ranked || (previous !== undefined && previous <= ms)) return { best, isNewBest: false };
-  return { best: { ...best, [difficulty]: ms }, isNewBest: true };
+  if (!ranked || (previous !== undefined && previous <= time)) return { best, isNewBest: false };
+  return { best: { ...best, [difficulty]: time }, isNewBest: true };
 }

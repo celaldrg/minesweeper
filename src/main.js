@@ -30,6 +30,8 @@ const app = {
   best: sanitizeBestTimes(storage.getJSON(KEYS.best, {})),
   /** @type {import('./game.js').Game | null} */
   game: null,
+  /** False for the ?demo board: winning it never sets a best time. */
+  ranked: true,
   isNewBest: false,
   clock: { frame: 0, last: 0 },
 };
@@ -58,7 +60,7 @@ function init() {
   });
   if (new URLSearchParams(window.location.search).has('demo')) {
     app.difficulty = DEMO_DIFFICULTY;
-    showGame(createDemoGame());
+    showGame(createDemoGame(), false);
   } else {
     startNewGame();
   }
@@ -100,13 +102,17 @@ function freshSeed() {
 }
 
 function startNewGame() {
-  showGame(createGame({ difficulty: app.difficulty, seed: freshSeed() }));
+  showGame(createGame({ difficulty: app.difficulty, seed: freshSeed() }), true);
 }
 
-/** @param {import('./game.js').Game} game */
-function showGame(game) {
+/**
+ * @param {import('./game.js').Game} game
+ * @param {boolean} ranked Whether winning this game can set a best time.
+ */
+function showGame(game, ranked) {
   stopClock();
   app.game = game;
+  app.ranked = ranked;
   app.isNewBest = false;
   view.build(game.cols, game.rows);
   panel.renderDifficulty(app.difficulty);
@@ -131,7 +137,7 @@ function play(index) {
   const { x, y } = coordinates(index);
   syncClock();
   const { opened, status } = activate(app.game, x, y);
-  if (status === 'won' && opened.length > 0) saveWin();
+  if (status === 'won' && opened.length > 0 && app.ranked) saveWin();
   if (status === 'playing') startClock();
   else stopClock();
   render(opened);
