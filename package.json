@@ -1,0 +1,11 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "description": "Classic mine-clearing puzzle in vanilla JavaScript: safe first click, chording, flags, best times, touch and keyboard controls.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}

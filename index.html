@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Minesweeper</title>
+  <meta name="description" content="Classic mine-clearing puzzle in your browser: safe first click, chording, flags, best times, touch and keyboard controls. Vanilla JavaScript, no build step.">
+  <meta name="theme-color" content="#0f172a">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Minesweeper">
+  <meta property="og:description" content="Classic mine-clearing puzzle in your browser: safe first click, chording, flags, best times, touch and keyboard controls.">
+  <meta property="og:url" content="https://celaldrg.github.io/minesweeper/">
+  <meta property="og:image" content="https://celaldrg.github.io/minesweeper/docs/screenshot.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%233b82f6'/%3E%3Cpath d='M32 10v9M32 45v9M10 32h9M45 32h9M16.4 16.4l6.4 6.4M41.2 41.2l6.4 6.4M16.4 47.6l6.4-6.4M41.2 22.8l6.4-6.4' stroke='%230f172a' stroke-width='4.5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='13' fill='%230f172a'/%3E%3Ccircle cx='27.5' cy='27.5' r='3.5' fill='%23e2e8f0'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="src/main.js"></script>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-mine" viewBox="0 0 24 24">
+      <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="6.2" fill="currentColor"/>
+      <circle cx="9.7" cy="9.7" r="1.7" fill="#ffffff" fill-opacity="0.7"/>
+    </symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24">
+      <path d="M7.5 3.5v16M4.5 20.5h7" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+      <path d="M8.5 4h10.5l-3 4.25 3 4.25H8.5z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-wrong-flag" viewBox="0 0 24 24">
+      <g opacity="0.45">
+        <path d="M7.5 3.5v16M4.5 20.5h7" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+        <path d="M8.5 4h10.5l-3 4.25 3 4.25H8.5z" fill="currentColor"/>
+      </g>
+      <path d="M4.5 4.5l15 15M19.5 4.5l-15 15" fill="none" stroke="#fca5a5" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-probe" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 1.5v4.5M12 18v4.5M1.5 12H6M18 12h4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="3" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-won" viewBox="0 0 24 24">
+      <path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.4-7.5 10-4.3-1.6-7.5-5.4-7.5-10v-6z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M8.5 12.2l2.6 2.6 4.6-5.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-lost" viewBox="0 0 24 24">
+      <path d="M12 1.5l2.3 5.6 5.9-2.3-2.3 5.9 5.6 2.3-5.6 2.3 2.3 5.9-5.9-2.3-2.3 5.6-2.3-5.6-5.9 2.3 2.3-5.9L.5 12l5.6-2.3-2.3-5.9 5.9 2.3z" fill="currentColor"/>
+      <circle cx="12" cy="12" r="3.4" fill="#0f172a"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 9v4.2l2.6 2.4M9.5 2.5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-tap" viewBox="0 0 24 24">
+      <rect x="4" y="4" width="16" height="16" rx="4.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="12" r="3.2" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24">
+      <path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4v4.5H15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg class="icon"><use href="#i-mine"></use></svg></span>
+      <h1 data-i18n="title">Minesweeper</h1>
+    </div>
+    <div class="header-actions">
+      <button id="new-game" class="btn btn-primary" type="button">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-refresh"></use></svg>
+        <span data-i18n="newGame">New game</span>
+      </button>
+      <button id="lang-toggle" class="btn btn-square" type="button" aria-label="Switch to Turkish" title="Switch to Turkish">TR</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="hud card" aria-label="Game status" data-i18n-label="hudLabel">
+      <div class="stat">
+        <svg class="icon stat-icon" aria-hidden="true" focusable="false"><use href="#i-mine"></use></svg>
+        <div class="stat-text">
+          <span class="stat-label" data-i18n="mines">Mines</span>
+          <span id="mines-left" class="stat-value">10</span>
+        </div>
+      </div>
+      <button id="status" class="status" type="button" data-status="ready" aria-label="Ready – start a new game">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-probe"></use></svg>
+      </button>
+      <div class="stat stat-end">
+        <div class="stat-text">
+          <span class="stat-label" data-i18n="time">Time</span>
+          <span id="timer" class="stat-value">0:00</span>
+        </div>
+        <svg class="icon stat-icon" aria-hidden="true" focusable="false"><use href="#i-clock"></use></svg>
+      </div>
+      <p id="message" class="message" role="status" aria-live="polite">Pick any cell – the first one is always safe.</p>
+    </section>
+
+    <section class="controls">
+      <div class="segmented" role="group" aria-label="Difficulty" data-i18n-label="difficulty">
+        <button class="seg" type="button" data-difficulty="beginner" aria-pressed="true">
+          <span data-i18n="beginner">Beginner</span>
+          <small>9×9 · 10<svg class="icon" aria-hidden="true" focusable="false"><use href="#i-mine"></use></svg></small>
+        </button>
+        <button class="seg" type="button" data-difficulty="intermediate" aria-pressed="false">
+          <span data-i18n="intermediate">Intermediate</span>
+          <small>16×16 · 40<svg class="icon" aria-hidden="true" focusable="false"><use href="#i-mine"></use></svg></small>
+        </button>
+        <button class="seg" type="button" data-difficulty="expert" aria-pressed="false">
+          <span data-i18n="expert">Expert</span>
+          <small>30×16 · 99<svg class="icon" aria-hidden="true" focusable="false"><use href="#i-mine"></use></svg></small>
+        </button>
+      </div>
+      <button id="mode-toggle" class="btn mode-toggle" type="button" aria-pressed="false">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-tap"></use></svg>
+        <span id="mode-text">Tap: Reveal</span>
+      </button>
+    </section>
+
+    <section id="board-area" class="board-area">
+      <div id="board-card" class="board-card" data-status="ready" data-mode="reveal">
+        <div id="board" class="board" role="grid" aria-label="Minefield" data-i18n-label="boardLabel"></div>
+      </div>
+    </section>
+
+    <section class="info">
+      <div class="card panel-card">
+        <h2 data-i18n="bestTimes">Best times</h2>
+        <ul class="best-list">
+          <li data-best="beginner"><span data-i18n="beginner">Beginner</span><span class="best-time">—</span></li>
+          <li data-best="intermediate"><span data-i18n="intermediate">Intermediate</span><span class="best-time">—</span></li>
+          <li data-best="expert"><span data-i18n="expert">Expert</span><span class="best-time">—</span></li>
+        </ul>
+      </div>
+      <div class="card panel-card">
+        <h2 data-i18n="howToPlay">How to play</h2>
+        <ul class="help-list">
+          <li data-i18n="help1">Click or tap a cell to open it. Numbers count the mines around it.</li>
+          <li data-i18n="help2">Right-click, long-press or switch to Flag mode to mark a mine.</li>
+          <li data-i18n="help3">Press a number whose mines are all flagged to open its neighbours.</li>
+          <li data-i18n="help4">Keyboard: arrows move, Enter or Space opens, F flags.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span>MIT</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/celaldrg/minesweeper" data-i18n="footerSource">Source on GitHub</a>
+  </footer>
+</body>
+</html>
