@@ -727,6 +727,26 @@ h2 {
   }
 }
 
+/* ---------- Smallest phones (320-359 px): drop the logo so the title stays whole ---------- */
+
+@media (max-width: 359px) {
+  .app-header {
+    gap: 8px;
+  }
+
+  .brand-mark {
+    display: none;
+  }
+
+  h1 {
+    font-size: 17px;
+  }
+
+  .btn-primary {
+    padding: 0 12px;
+  }
+}
+
 /* ---------- Wide screens: panel left, board right ---------- */
 
 @media (min-width: 900px) {
